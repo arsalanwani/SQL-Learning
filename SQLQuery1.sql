@@ -250,6 +250,57 @@ where product_id = 27
 alter table product
 add  warranty_years int
 select * from product
+/*
+Display each brand and the number of products 
+belonging to that brand.
+*/
+select brand,count(*) as no_of_brands from product
+group by brand
+order by no_of_brands desc
+
+select * from product
+
+select brand,count(*) as total_product from product
+group by brand
+having count(*) > 2
 
 
+select * from product
+select category ,count(*) as total_product 
+from product
+group by category
+having count(*) >= 3
+select brand,avg(price) as avg_price
+from product
+group by brand
+having avg(price) > 30000
 
+select category,max(price) as max_price
+from product
+group by category
+having max(price) > 60000
+select city,sum(stock) as total_stock 
+from product
+group by city
+having sum(stock)>30
+select brand,sum(stock) as total_stock 
+from product
+group by brand
+having sum(stock)<20
+order  by sum(stock) desc
+select category, avg(price) as avg_price 
+from product
+group by category
+having avg(price)< 20000
+select city,count(*) as total_products
+from product
+group by city
+having count(*) > 3
+select brand,min(price) as min_price 
+from product
+group by brand
+having min(price) > 10000
+select category, sum(price) as total_price
+from product
+group by category
+having sum(price) >100000
