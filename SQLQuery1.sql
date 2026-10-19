@@ -531,18 +531,40 @@ where fine_amount > 100
 )
 */
 select * from books
-where price > 
+where category = 'self-help ' and price > 
 (
 select avg(price) from books
 where category = 'self-help '
 )
 
 select * from books
-where price <
+where category = 'finance' and price <
 (
 select avg(price) from books
 where category = 'Fiction'
 )
 
+select * from borrowings 
+where fine_amount > 
+(
+select max(fine_amount) from borrowings
+where book_id = 1
+)
+
+select book_title from books 
+where price >
+(
+select avg(price) from books 
+where published_year < 2000
+)
+
+select borrower_name from borrowings 
+where fine_amount > 
+(
+select avg(fine_amount) from borrowings 
+where borrow_date >= '2026-01-01' and borrow_date < '2026-02-01'
+)
 
 
+
+select * from borrowings
