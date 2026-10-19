@@ -304,3 +304,245 @@ select category, sum(price) as total_price
 from product
 group by category
 having sum(price) >100000
+
+
+
+use ILS
+create table books
+(
+book_id  int primary key,
+book_title varchar(50),
+author varchar(100),
+category varchar(50),
+price int ,
+published_year int
+)
+
+create table borrowings
+(
+borrowing_id int primary key,
+borrower_name varchar(50),
+book_id int foreign key references books(book_id),
+borrow_date datetime,
+return_date datetime,
+fine_amount decimal(10,2)
+)
+
+select * from books
+select * from borrowings
+
+INSERT INTO books
+(book_id, book_title, author, category, price, published_year)
+VALUES
+(1, 'The Alchemist', 'Paulo Coelho', 'Fiction', 350, 1988),
+(2, 'Atomic Habits', 'James Clear', 'Self-Help', 550, 2018),
+(3, 'Rich Dad Poor Dad', 'Robert Kiyosaki', 'Finance', 400, 1997),
+(4, 'Wings of Fire', 'A.P.J. Abdul Kalam', 'Biography', 300, 1999),
+(5, '1984', 'George Orwell', 'Dystopian', 450, 1949),
+(6, 'The Psychology of Money', 'Morgan Housel', 'Finance', 500, 2020),
+(7, 'Ikigai', 'Hector Garcia', 'Self-Help', 320, 2016),
+(8, 'Harry Potter', 'J.K. Rowling', 'Fantasy', 650, 1997),
+(9, 'Think and Grow Rich', 'Napoleon Hill', 'Self-Help', 280, 1937),
+(10, 'The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 480, 1937),
+(11, 'Sapiens', 'Yuval Noah Harari', 'History', 700, 2011),
+(12, 'Deep Work', 'Cal Newport', 'Productivity', 420, 2016),
+(13, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 250, 1925),
+(14, 'Clean Code', 'Robert C. Martin', 'Technology', 800, 2008),
+(15, 'The Power of Habit', 'Charles Duhigg', 'Psychology', 390, 2012);
+
+
+
+INSERT INTO borrowings
+(borrowing_id, borrower_name, book_id, borrow_date, return_date, fine_amount)
+VALUES
+(1, 'Aarav', 1, '2026-01-05', '2026-01-12', 0),
+(2, 'Priya', 2, '2026-01-06', '2026-01-20', 50),
+(3, 'Rahul', 3, '2026-01-07', '2026-01-14', 0),
+(4, 'Aarav', 4, '2026-01-08', '2026-01-18', 20),
+(5, 'Sneha', 5, '2026-01-09', '2026-01-16', 0),
+(6, 'Vikram', 6, '2026-01-10', '2026-01-25', 100),
+(7, 'Priya', 7, '2026-01-11', '2026-01-18', 0),
+(8, 'Aman', 8, '2026-01-12', '2026-01-22', 30),
+(9, 'Rahul', 9, '2026-01-13', '2026-01-20', 0),
+(10, 'Sneha', 10, '2026-01-14', '2026-01-21', 0),
+(11, 'Aarav', 2, '2026-01-15', '2026-01-29', 40),
+(12, 'Neha', 3, '2026-01-16', '2026-01-23', 0),
+(13, 'Vikram', 4, '2026-01-17', '2026-02-01', 75),
+(14, 'Aman', 6, '2026-01-18', '2026-01-25', 0),
+(15, 'Priya', 8, '2026-01-19', '2026-02-02', 60),
+(16, 'Rahul', 1, '2026-01-20', '2026-01-27', 0),
+(17, 'Neha', 11, '2026-01-21', '2026-02-05', 100),
+(18, 'Sneha', 12, '2026-01-22', '2026-01-29', 0),
+(19, 'Aarav', 13, '2026-01-23', '2026-01-30', 0),
+(20, 'Vikram', 14, '2026-01-24', '2026-02-10', 150),
+(21, 'Aman', 3, '2026-02-01', '2026-02-08', 0),
+(22, 'Priya', 6, '2026-02-02', '2026-02-16', 80),
+(23, 'Rahul', 7, '2026-02-03', '2026-02-10', 0),
+(24, 'Neha', 8, '2026-02-04', '2026-02-18', 50),
+(25, 'Sneha', 2, '2026-02-05', '2026-02-12', 0),
+(26, 'Aarav', 10, '2026-02-06', '2026-02-20', 90),
+(27, 'Vikram', 11, '2026-02-07', '2026-02-14', 0),
+(28, 'Aman', 12, '2026-02-08', '2026-02-22', 70),
+(29, 'Priya', 1, '2026-02-09', '2026-02-16', 0),
+(30, 'Rahul', 4, '2026-02-10', '2026-02-25', 120),
+(31, 'Neha', 5, '2026-02-11', '2026-02-18', 0),
+(32, 'Sneha', 6, '2026-02-12', '2026-02-19', 0),
+(33, 'Aarav', 8, '2026-02-13', '2026-02-27', 100),
+(34, 'Vikram', 9, '2026-02-14', '2026-02-21', 0),
+(35, 'Aman', 14, '2026-02-15', '2026-03-01', 200),
+(36, 'Priya', 3, '2026-02-16', '2026-02-23', 0),
+(37, 'Rahul', 12, '2026-02-17', '2026-03-03', 110),
+(38, 'Neha', 2, '2026-02-18', '2026-02-25', 0),
+(39, 'Sneha', 10, '2026-02-19', '2026-03-05', 140),
+(40, 'Aman', 11, '2026-02-20', NULL, 0);
+
+
+
+select book_title from books 
+where price >(select avg(price) from books)
+
+select book_title from books 
+where price <(select avg(price) from books)
+
+select book_title from books 
+where price =(
+select max(price) from books
+)
+
+select book_title from books 
+where price =(
+select min(price) from books
+)
+
+select borrower_name,fine_amount from borrowings 
+where fine_amount >(
+select avg(fine_amount) from borrowings
+)
+
+select borrower_name,fine_amount from borrowings 
+where fine_amount <(
+select avg(fine_amount) from borrowings
+)
+
+select * from books
+
+select book_title,price from books 
+where price >(
+select price from books
+where book_title ='The Alchemist')
+
+select book_title,price from books 
+where price <(
+select price from books
+where book_title ='Atomic Habits')
+
+select * from books
+
+select book_title,published_year from books
+where published_year >(
+select avg(published_year) from books
+)
+
+select borrower_name from borrowings
+where fine_amount = (
+select max(fine_amount) from borrowings
+)
+select * from borrowings
+
+select book_title from books
+where book_id in
+(select book_id from borrowings
+where borrower_name = 'Aarav')
+
+select * from books
+where book_id  in
+(
+select book_id from borrowings
+where borrower_name = 'Aarav'
+)
+
+select * from books
+where book_id  in
+(
+select book_id from borrowings
+where borrower_name = 'Priya'
+)
+
+select * from books
+select * from borrowings
+
+select borrower_name from borrowings 
+where book_id in
+(
+select book_id from books
+where category ='Finance'
+)
+
+select borrower_name from borrowings 
+where book_id in
+(
+select book_id from books
+where category ='Fantasy'
+)
+
+select book_title from books
+where book_id in
+(
+select book_id from borrowings
+where borrow_date >= '2026-02-01 00:00:00.000'
+)
+
+
+select book_title from books
+where price =
+(
+select max(price) from books
+where category = 'Finance'
+)
+
+select book_title from books
+where price =
+(
+select min(price) from books
+where category = 'Finance'
+)
+
+select  * from borrowings
+where book_id in
+(
+select book_id from books
+where price > 500
+)
+
+select book_title from books
+where book_id in
+(
+select book_id from borrowings
+where fine_amount > 100
+)
+/*
+select book_title,
+(select fine_amount from borrowings
+where borrowings.book_id = books.book_id) from books
+where book_id in
+(
+select book_id from borrowings
+where fine_amount > 100
+)
+*/
+select * from books
+where price > 
+(
+select avg(price) from books
+where category = 'self-help '
+)
+
+select * from books
+where price <
+(
+select avg(price) from books
+where category = 'Fiction'
+)
+
+
+
