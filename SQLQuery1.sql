@@ -564,7 +564,281 @@ where fine_amount >
 select avg(fine_amount) from borrowings 
 where borrow_date >= '2026-01-01' and borrow_date < '2026-02-01'
 )
+select * from borrowings
+
+
+select * from books
+where price =
+(
+select max(price) from books
+where book_id  in
+(
+select book_id from borrowings
+where borrower_name = 'priya'
+)
+)
+
+select * from books
+where price =
+(
+select min(price) from books
+where book_id  in
+(
+select book_id from borrowings
+where borrower_name = 'rahul'
+)
+)
+
 
 
 
 select * from borrowings
+where book_id in
+(
+select book_id from books 
+where price > 
+(
+select avg(price) from books
+)
+)
+
+select book_title from books
+where price > 
+(
+select avg(price) from books
+where category =
+(
+select category from books
+where book_title = 'the alchemist' 
+)
+)
+
+select * from borrowings 
+where fine_amount = 
+(
+select max(fine_amount) from borrowings
+where book_id in
+(
+select book_id from books 
+where price > 400
+)
+)
+
+
+select * from books b
+where price =
+(
+select max(price) from books
+where category = b.category
+)
+
+select * from books b
+where price =
+(
+select min(price) from books
+where category = b.category
+)
+
+select * from books b
+where price > (
+select avg(price) from books
+where category = b.category
+)
+
+Find borrowing records whose fine is greater
+than the average fine for the same book.
+
+select * from borrowings b
+where fine_amount > (
+select avg(fine_amount)  from borrowings
+where book_id=b.book_id
+)
+
+select * from borrowings b
+where fine_amount =
+(
+select max(fine_amount) from borrowings
+where book_id = b.book_id
+)
+--Find books whose price is greater than the
+--average price of books published in the same year.
+select * from books b
+where price >
+(
+select avg(price) from books
+where published_year = b.published_year
+)
+select * from books
+select * from borrowings
+--Find books whose price is
+equal to the maximum price in their own category.
+select * from books b
+where price =
+(
+select max(price) from books 
+where category = b.category
+)
+
+
+
+
+
+CREATE TABLE Customers (
+    customer_id INT PRIMARY KEY,
+    customer_name VARCHAR(50),
+    city VARCHAR(50),
+    age INT
+);
+
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    amount DECIMAL(10,2),
+    status VARCHAR(20),
+    FOREIGN KEY (customer_id)
+        REFERENCES Customers(customer_id)
+);
+
+INSERT INTO Customers
+    (customer_id, customer_name, city, age)
+VALUES
+(1, 'Arjun',  'Srinagar', 25),
+(2, 'Priya',  'Delhi',    30),
+(3, 'Rahul',  'Mumbai',   22),
+(4, 'Neha',   'Srinagar', 28),
+(5, 'Aman',   'Delhi',    35),
+(6, 'Zoya',   'Jammu',    24),
+(7, 'Kabir',  'Mumbai',   31),
+(8, 'Isha',   'Jammu',    27),
+(9, 'Sameer', 'Delhi',    29),
+(10,'Mehak',  'Srinagar', 21);
+
+INSERT INTO Orders
+    (order_id, customer_id, order_date, amount, status)
+VALUES
+(101, 1, '2026-01-05', 1500, 'Completed'),
+(102, 1, '2026-02-10', 3200, 'Completed'),
+(103, 2, '2026-01-12', 4500, 'Pending'),
+(104, 2, '2026-03-15', 1200, 'Completed'),
+(105, 3, '2026-02-20', 2800, 'Cancelled'),
+(106, 3, '2026-04-02', 5100, 'Completed'),
+(107, 4, '2026-01-25', 1800, 'Completed'),
+(108, 4, '2026-03-05', 6200, 'Pending'),
+(109, 5, '2026-02-14', 7500, 'Completed'),
+(110, 5, '2026-04-10', 2300, 'Completed'),
+(111, 6, '2026-03-18', 900,  'Cancelled'),
+(112, 7, '2026-01-30', 4100, 'Completed'),
+(113, 7, '2026-04-15', 6800, 'Pending'),
+(114, 8, '2026-02-28', 1600, 'Completed'),
+(115, 9, '2026-03-22', 5400, 'Completed'),
+(116, 9, '2026-04-20', 3500, 'Pending');
+select * from customers
+select * from orders
+
+--Find customers whose individual order amount is greater
+--than the average amount of all orders. Display customer name, order ID, and amount.
+
+select customer_name,order_id,amount from orders o join customers c
+on o.customer_id = c.customer_id
+where amount >
+(
+select avg(amount) from  orders o
+)
+
+--Find the order or orders with the second-highest distinct order amount, without using TOP or OFFSET.
+
+select * from orders
+where amount =(
+select max(amount) from orders 
+where amount <(
+select max(amount) from orders
+)
+)
+
+--Find customers whose age is greater than the average age of all customers.
+
+select * from customers
+where  age >(
+select avg(age) from customers 
+)
+
+--Find orders whose amount is greater than at least one order placed
+--by a customer from Delhi. Use ANY or an equivalent approach.
+select * from Customers
+select * from orders
+/*
+select order_id,city from orders o join customers c
+on o.customer_id = c.customer_id
+where order_id > 1(
+select c.customer_id from customers c
+where c.city ='delhi'
+)
+*/
+
+--Q3. Find customers whose age equals the average age of customers from their city.
+select * from customers c
+where age =
+(
+select avg(age) from customers
+where city =c.city
+)
+
+--Find orders whose amount is greater than the average amount of all orders.
+select * from orders 
+where amount >
+(
+select avg(amount) from orders 
+)
+--Find customers who have not placed any orders using NOT IN.
+select * from customers
+where customer_id not in
+(
+select customer_id from orders 
+)
+--Find orders whose amount equals the average order amount, if any such orders exist.
+select * from orders 
+where amount =
+(
+select avg(amount) from orders
+)
+--Find customers whose total order amount is greater than the average total order amount 
+--per customer, counting customers with no orders as zero.
+/*
+select customer_name,order_id from customers c left join orders o
+on o.customer_id = c.customer_id
+select * from orders
+where sum(amount) >
+(
+select avg(amount) from orders
+group by customer_id
+)
+*/
+
+--Find order amounts that occur more than once and display all matching orders.
+select * from orders
+where amount in
+(
+select amount from orders
+group by amount
+having count(*) > 1
+)
+--Find customers whose age is greater than the average age of customers who have placed orders.
+
+select * from customers
+where age >
+(
+select avg(age) from customers
+where customer_id in 
+(
+select customer_id from orders
+)
+)
+--Find customers whose earliest order date is earlier than the earliest order date of customer ID 2.
+select * from orders 
+where order_date < (
+select min(order_date) from orders 
+where customer_id =2
+)
+
+
