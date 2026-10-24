@@ -167,4 +167,44 @@ on c.customer_id=o.customer_id
 --Aggregation with JOINs
 
 --	Q29.Count how many orders each customer has placed.
-select count(distinct(order_id)) from orders
+select c.customer_id,count(o.order_id)as Total_orders from orders o inner join customers c
+on o.customer_id = c.customer_id
+group by c.customer_id
+order by total_orders desc
+
+--Q30.Find the total quantity ordered for each product.
+select p.product_id,sum(o.quantity) from orders o join products p
+on p.product_id = o.product_id
+group by p.product_id
+
+--Q31.Calculate the estimated total value of orders for each product category.
+select p.category,round(sum(p.price*o.quantity),2) as total_value from orders o join products p
+on o.product_id = p.product_id
+group by p.category
+
+--Q32.Find the number of orders placed by customers in each city.
+select c.city,count(o.order_id) as No_of_orders from customers c  join orders o
+on o.customer_id = c.customer_id
+group by c.city
+
+--Q33.Find the average product price for each category.
+select category,Round(AVG(price),2) AS AVG_Price from products
+group by category
+
+--Q34.Find categories whose products have an average price greater than 100.
+select category,Round(AVG(price),2) AS AVG_Price from products
+group by category
+having AVG(price) > 100
+
+--Q35.Find customers who have placed more than three orders
+select c.customer_id ,count(o.order_id) as total_orders from customers c join orders o
+on c.customer_id = o.customer_id
+group by c.customer_id
+having count(o.order_id) > 3
+
+--Q36.Find the most expensive product in each category.
+select product_name,price,category from products p1
+where price= (
+select max(price) as expensive_product from products p2 
+where p2.category = p1.category
+)
