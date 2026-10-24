@@ -163,3 +163,8 @@ select c.customer_id, o.order_id, case
 when o.order_id is null then 'no orders'
 else 'has orders' end as order_status from orders o full outer join customers c
 on c.customer_id=o.customer_id
+
+--Aggregation with JOINs
+
+--	Q29.Count how many orders each customer has placed.
+select count(distinct(order_id)) from orders
