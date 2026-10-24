@@ -841,4 +841,51 @@ select min(order_date) from orders
 where customer_id =2
 )
 
+--Q1. Display customer names and their order IDs.
+select customer_name,order_id from customers c join orders o
+on c.customer_id = o.customer_id
 
+--Q2. Display customer names and their order amounts.
+select customer_name,amount from customers c join orders o
+on c.customer_id = o.customer_id
+
+--Q3. Find all orders placed by Arjun
+select customer_name,order_id,amount from customers c join orders o
+on c.customer_id = o.customer_id
+where c.customer_name = 'arjun'
+
+--Q4. Find customers from Srinagar who have placed orders.
+SELECT customer_name,order_id,city from customers c join orders o
+on c.customer_id =o.customer_id
+where c.city = 'srinagar'
+
+--Q5. Display customer names and orders where the amount is greater than ₹1,000.
+SELECT customer_name,order_id,amount from customers c join orders o
+on c.customer_id =o.customer_id
+where amount > 1000
+
+--Q6. Display all customers and their orders, including customers who have never ordered.
+SELECT customer_name,order_id,amount from customers c left join orders o
+on c.customer_id =o.customer_id
+
+--Q7. Find customers who have never placed an order.
+select c.customer_name , o.customer_id from customers c left join orders o
+on c.customer_id =o.customer_id
+where o.order_id is null
+
+--Q8. Display customer names, cities, ages, and order dates.
+
+select customer_name,city,age,order_date from customers c left join orders o
+on c.customer_id = o.customer_id
+
+
+--Q9. Display all orders and their customer names, if available.
+select o.order_id,o.amount,c.customer_name  from customers c right join orders o
+on c.customer_id = o.customer_id
+
+--Q10. Find orders that do not have a matching customer.
+select o.order_id, o.customer_id, o.amount from customers c
+RIGHT JOIN Orders o
+on c.customer_id = o.customer_id
+where c.customer_id is null
+-
