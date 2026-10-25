@@ -208,3 +208,108 @@ where price= (
 select max(price) as expensive_product from products p2 
 where p2.category = p1.category
 )
+
+--Q37.Find the largest quantity ordered for each product
+select p.product_id,max(o.quantity) from products p join orders o
+on o.product_id = p.product_id
+group by p.product_id
+
+--Q38.Find the number of distinct customers who ordered each product.
+select count(distinct c.customer_id) as total_customers,p.product_id from customers  c join orders o
+on o.customer_id = c.customer_id
+inner join products p
+on p.product_id = o. product_id 
+group by p.product_id
+order by total_customers desc
+
+--Q39.Calculate estimated order value by payment method.
+select o.payment_method ,round(sum(p.price),2) as total_money from orders o join products p
+on o.product_id = p.product_id
+group by o.payment_method
+
+--Q40.Find customers whose total ordered quantity is greater than 10.
+select c.customer_id,sum(o.quantity) as total_quantity from customers c join orders o
+on c.customer_id = o.customer_id
+group by c.customer_id
+having sum(o.quantity) > 10
+
+
+
+--Interview-style JOIN problem
+
+--Q41.Find the top five products by total quantity ordered.
+
+select top 5 p.product_id ,sum(o.quantity) as total_quantity from orders o join products p
+on p.product_id = o.product_id
+group by p.product_id
+order by total_quantity
+
+--Q42.. Find the top five customers by number of orders.
+select top 5 c.customer_id,count(o.order_id) as no_of_orders from customers c join orders o
+on c.customer_id = o.customer_id
+group by c.customer_id
+order by no_of_orders desc
+
+--Q43.Find customers who ordered products from more than one category.
+select c.customer_id,count(distinct p.category)  from customers c join orders o
+on c.customer_id = o.customer_id
+inner join products p
+on p.product_id = o.product_id
+group by c.customer_id
+having  count(distinct p.category) > 2
+
+--REchecking Q43.
+
+select c.customer_id,p.category,o.product_id from customers c join orders o
+on c.customer_id = o.customer_id
+inner join products p
+on o.product_id = p.product_id
+where c.customer_id='c0001'
+
+--Q44.Find each customer's earliest order date.
+select c.customer_id,min(o.order_date) as earliest_ordate from customers c join orders o
+on c.customer_id =o.customer_id
+group by c.customer_id
+
+--Q45.Compare each customer's signup date with their first order date.
+select c.customer_id,min(o.order_date) as earliest_ordate,c.signup_date,datediff(day,c.signup_date,min(o.order_date)) as days from customers c join orders o
+on c.customer_id =o.customer_id
+group by 
+c.signup_date,
+c.customer_id
+
+--Q46.Show the estimated total value and order count for each city.
+select c.city,count(o.order_id) as total_orders ,round(sum(p.price),2) as total_revenue from customers c join orders o
+on c.customer_id =o.customer_id
+inner join products p
+on p.product_id = o.product_id
+group by c.city
+order by total_revenue desc
+
+--Q47.Compare the number of orders made by loyalty members and non-members.
+select c.loyalty_member,count(o.order_id) as total_orders from customers c join orders o
+on c.customer_id = o.customer_id
+group by c.loyalty_member
+
+--Q48.Find products ordered through more than one payment method.
+select p.product_id ,count(distinct o.payment_method) as no_of_payments from orders o join products p
+on o.product_id = p.product_id
+group by p.product_id
+having count(distinct o.payment_method) > 2
+
+--Q49.Find categories with at least five distinct customers ordering from them.
+select  count(distinct o.customer_id)as distinct_customers,p.category from orders o join products p
+on o.product_id = p.product_id
+group by p.category
+having count(distinct o.customer_id) >= 5
+
+--Q50.Produce a summary with customer ID, city, order count, total quantity and estimated order value.
+select c.customer_id,c.city,count(o.order_id) as total_orders,
+sum(o.quantity) as total_quanity,round(sum(o.quantity*p.price),2)
+as estimated_value from customers c left join orders o
+on c.customer_id = o.customer_id
+join products p
+on p.product_id =o.product_id
+group by
+c.customer_id,
+c.city
