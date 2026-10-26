@@ -313,3 +313,319 @@ on p.product_id =o.product_id
 group by
 c.customer_id,
 c.city
+
+--SQL SUBQUERY
+
+--Q51. Find products priced above the average price of all products.
+select * from products
+where price > (
+select AVG(price) from products
+)
+
+--Q52.Find products priced below the average product price.
+
+select * from products
+where price < (
+select avg(price) from products
+)
+
+--Q53.Find the most expensive product using a subquery.
+
+select * from products 
+where price =
+(
+select max(price) from products
+)
+
+--Q54.Find the cheapest product using a subquery.
+
+select * from products
+where price =
+(
+select min(price) from products
+)
+
+--Q55.Find products priced higher than the cheapest product.
+
+select * from products
+where price >
+(
+select min(price) from products
+)
+
+--Q56.Find customers whose age is greater than the average customer age.
+
+select * from customers 
+where age > (
+select avg(age) as avg_age from customers
+)
+
+--Q57.Find orders whose quantity is greater than the average order quantity.
+
+select * from orders
+where quantity > (
+select avg(quantity) as avg_quantity from orders
+)
+
+--Q58.Find products whose price equals the highest product price.
+
+select * from products
+where price =
+(
+select max(price) from products
+)
+
+--Q59.Find customers who signed up after the earliest signup date.
+
+select * from customers
+where signup_date >
+(
+select min(signup_date) as min_signup_date from customers
+)
+
+--Q60.Find orders dated later than the average order date.
+select * from orders
+where order_date >(
+select DATEADD(day,avg(datediff(day,'2000-01-01',order_date)),'2000-01-01')
+from orders
+)
+
+--Q61.Find customers who have placed at least one order using IN.
+
+select customer_id from customers
+where customer_id in 
+(
+select customer_id from orders
+)
+
+--Q62.Find customers who have never placed an order using NOT IN.
+
+select customer_id from customers
+where customer_id NOT in 
+(
+select customer_id from orders
+where customer_id is not null
+)
+
+--Q63.Find products that have appeared in at least one order using IN.
+
+select product_id from products
+where product_id in
+(
+select product_id from orders
+)
+
+--Q64.Find products that have never appeared in an order using NOT IN.
+
+select product_id from products
+where product_id NOT IN
+(
+select product_id from orders
+where product_id is NOT NULL
+)
+
+--Q65.Find customers who ordered a product in the Beauty category.
+
+select customer_id from customers 
+where customer_id in
+(
+select o.customer_id from orders o join products p
+on p.product_id = o.product_id
+where p.category = 'beauty'
+)
+
+--Q66.Find customers who have ordered a product priced above 200.
+
+select customer_id from customers 
+where customer_id in 
+(
+select o.customer_id from orders o join products p
+on p.product_id = o.product_id
+where p.price > 200
+)
+
+--Q67.Find products ordered by customers from London.
+
+select product_id from products
+where product_id in 
+(
+select o.product_id from orders o join customers c
+on c.customer_id = o.customer_id
+where c.city = 'london'
+)
+
+--Q68.Find orders placed by loyalty members.
+
+select o.order_id from orders o
+where o.order_id  in
+(
+select o.order_id from orders o join customers c
+on c.customer_id = o.customer_id
+where loyalty_member = 1
+)
+
+--Q69.Find customers who ordered products in either the Beauty or Home category.
+
+select c.customer_id from customers c
+where c.customer_id in 
+(
+select o.customer_id from orders o join products p
+on p.product_id = o.product_id
+where p.category in ('beauty' , 'home')
+)
+
+--Q70.Find orders whose product ID belongs to products priced below the average product price.
+
+select o.order_id from orders o
+where order_id in 
+(
+select o.order_id from orders o join products p
+on p.product_id = o.product_id
+where p.price < 
+(
+select avg(p.price) from products p
+))
+
+--EXISTS and NOT EXISTS
+
+--Q71.Find customers who have placed at least one order using EXISTS.
+
+select c.customer_id from customers c
+where exists 
+(
+select o.customer_id from orders o
+where o.customer_id = c.customer_id
+)
+
+--Q72.Find customers who have never placed an order using NOT EXISTS.
+
+select c.customer_id from customers c
+where NOT exists 
+(
+select o.customer_id from orders o
+where o.customer_id = c.customer_id
+)
+
+--Q73.Find products that have been ordered at least once using EXISTS.
+select p.product_id from products p
+where exists
+(
+select o.product_id from orders o
+where o.product_id = p.product_id  --########
+)
+
+--Q74.Find products that have never been ordered using NOT EXISTS.
+
+select p.product_id from products p
+where NOT exists
+(
+select o.product_id from orders o
+where o.product_id = p.product_id  --########
+)
+
+--Q75.Find customers who have ordered at least one Beauty product.
+
+select c.customer_id from customers c
+where exists
+(
+select o.customer_id from orders o join products p
+on o.product_id = p.product_id
+where p.category = 'beauty'
+and o.customer_id = c.customer_id  --#############
+)
+
+--Q76.Find customers who have ordered a product priced above 200 using EXISTS
+
+select c.customer_id from customers c
+where exists 
+(
+select o.customer_id from orders o join products p
+on p.product_id = o.product_id
+where p.price > 200
+and o.customer_id = c.customer_id
+)
+
+--Q77.Find customers who have ordered products in every category they have purchased from?
+
+select c.customer_id from customers c
+where exists
+(
+select o.customer_id from orders o join products p
+on p.product_id = o.product_id
+where exists 
+(
+select p.category from products p                       --######
+where p.category in('home','beauty','electronics','sports','clothing')
+and c.customer_id =o.customer_id
+)
+)
+
+--Q78.Find customers who have at least one order with quantity greater than 3.
+
+select c.customer_id from customers c
+where exists
+(
+select o.customer_id from orders o join products p
+on p.product_id = o.product_id
+where o.quantity > 3
+and c.customer_id = o.customer_id
+)
+
+--Q79.Find products that have orders using more than one payment method.
+
+select p.product_id from products p
+where exists 
+(
+select o.product_id from orders o join customers c
+on o.customer_id = c.customer_id
+group by o.product_id
+having count(distinct o.payment_method) > 1
+)
+
+--Q80.. Find customers who have ordered products but have no orders using Cash as the payment method.
+
+/*
+select c.customer_id from customers c
+where  not exists 
+(
+select o.customer_id from orders o join products p
+on p.product_id = o.product_id
+where o.payment_method = 'cash'
+and c.customer_id = o.customer_id  --############
+*/
+
+SELECT c.customer_id
+FROM customers c
+WHERE EXISTS
+(
+    SELECT o.customer_id
+    FROM orders o
+    WHERE o.customer_id = c.customer_id
+)
+AND NOT EXISTS
+(
+    SELECT o.customer_id
+    FROM orders o
+    WHERE o.customer_id = c.customer_id                   --##################
+      AND o.payment_method = 'cash'
+);
+SELECT c.customer_id
+FROM customers c
+WHERE EXISTS
+(
+    SELECT o.customer_id
+    FROM orders o
+    WHERE o.customer_id = c.customer_id
+)
+AND NOT EXISTS
+(
+    SELECT o.customer_id
+    FROM orders o
+    WHERE o.customer_id = c.customer_id
+      AND o.payment_method = 'cash'
+);
+
+
+--Correlated subqueries and grouped comparisons
+
+--Q81.Find products priced above the average price of their own category.
