@@ -629,3 +629,223 @@ AND NOT EXISTS
 --Correlated subqueries and grouped comparisons
 
 --Q81.Find products priced above the average price of their own category.
+select p.product_id from products p 
+where p.price> 
+(
+select avg(p2.price) from products p2
+where p2.category = p.category
+)
+
+--Q82.Find customers whose age is above the average age of customers in their own city
+select c.customer_id from customers c
+where age > 
+(
+select avg(c2.age) from customers c2                    --#################
+where c2.city =c.city
+)
+
+--Q83.Find orders whose quantity is greater than the average quantity of orders for the same product.
+
+select o.order_id from orders o
+where o.quantity > 
+(
+select avg(o2.quantity) from orders o2
+where o2.product_id = o.product_id
+)
+
+--Q84.Find customers whose number of orders is greater than the average number of orders per customer.
+select c.customer_id from customers c join orders o
+on o.customer_id = c.customer_id
+group by c.customer_id
+having count(o.order_id)>
+(
+select avg(order_total * 1.0) from 
+(
+select count(*) as order_total from orders   --######################################
+group by customer_id
+) AS t
+)
+
+--Q85.Find products whose price is the maximum price in their category.
+
+select p.product_id,ROUND(p.price,2) as price,p.category from products p
+where price = 
+(
+select max(price) from products p2
+where p2.category = p.category
+)
+
+--Q86.Find customers whose first order was placed after their signup date.
+
+select c.customer_id from customers c join orders o
+on o.customer_id = c.customer_id
+group by c.customer_id
+having min(o.order_date) >
+(
+select c2.signup_date from customers c2
+where c2.customer_id = c.customer_id
+)
+select c.customer_id from customers c join orders o
+on o.customer_id = c.customer_id
+group by c.customer_id,c.signup_date 
+having min(o.order_date) > c.signup_date
+
+
+--Q87.Find products whose total ordered quantity exceeds the average total quantity per product.
+
+select p.product_id from products p join orders o
+on o.product_id=p.product_id
+group by p.product_id
+having sum(o.quantity)>(
+select avg(total_quantity*1.0) from (
+select sum(quantity) as total_quantity from orders 
+group by product_id
+) AS t
+)
+
+--Q88.Find customers who have placed more orders than customer C0007.
+
+select c.customer_id from customers c join orders o 
+on o.customer_id = c.customer_id
+group by c.customer_id
+having count(o.order_id) >
+(
+select count(*) from orders o
+where o.order_id = 'C0007'
+)
+
+--Q89.Find products priced above the average price of products ordered by customers in London.
+
+select p.product_id,p.price from products p  
+where p.price >
+(
+select avg(p2.price) from products p2 join orders o
+on o.product_id = p2.product_id
+join customers c
+on c.customer_id = o.customer_id
+where c.city = 'london'
+)
+
+--Q90.Find customers whose total estimated order value exceeds the 
+--average customer total estimated order value.
+
+select c.customer_id ,sum(o.quantity*p.price) as estimated_value from 
+customers c join orders o
+on c.customer_id =o.customer_id
+join products p
+on p.product_id = o.product_id
+group by c.customer_id
+having sum(o.quantity*p.price) > (
+select avg(customer_total*1.0) from   --#####################
+(
+select sum(o2.quantity*p2.price) as customer_total from orders o2
+join products p2
+on p2.product_id=o2.product_id
+group by o2.customer_id
+) AS t
+)
+--Interview patterns: ANY, ALL, second-highest and nested subqueries
+
+
+--Q91.Find products priced higher than any product in the Beauty category.
+    select p.product_id,p.price from products p
+    where p.price > ANY 
+    (
+    select p2.price from products p2
+    where p2.category = 'beauty'
+    )
+
+--Q92.Find products priced higher than all products in the Beauty category.
+select p.product_id,p.price from products p
+where p.price > All 
+(
+select p2.price from products p2   --############33
+where p2.category = 'beauty'
+)
+
+--Q93.Find the second-highest distinct product price.
+select max(price) as second_highest_price from products 
+where price <
+(
+select max(price) from products
+)
+
+--Q94.Find all products with the second-highest distinct price.
+
+select product_id,price from products 
+where price = 
+(
+select max(price) as second_highest_price from products 
+where price <
+(
+select max(price) from products
+)
+)
+
+--Q95.Find the third-highest distinct product price.
+
+select max(price) from products 
+where price <(
+select max(price) as second_highest_price from products 
+where price <
+(
+select max(price) from products
+)
+)
+
+--Q96.Find customers whose age equals the maximum age in their city.
+
+select c1.customer_id,c1.city,c1.age from customers c1
+where age =
+(
+select max(c2.age) from customers c2
+where c2.city =c1.city
+)
+
+--Q97.Find products that are more expensive than every product in their own category except themselves.
+
+select p1.product_id,p1.price,p1.product_name from products p1
+where p1.price >all
+(
+select p2.price from products p2
+where p2.category = p1.category
+and p2.product_id <> p1.product_id     --################
+)
+
+--Q98.Find customers who have ordered every product in the Beauty category.
+
+SELECT c.customer_id
+FROM customers c
+WHERE (
+    SELECT COUNT(DISTINCT o.product_id)
+    FROM orders o
+    JOIN products p
+        ON p.product_id = o.product_id
+    WHERE o.customer_id = c.customer_id
+      AND p.category = 'beauty'        --#########################
+) = (
+    SELECT COUNT(*)
+    FROM products
+    WHERE category = 'beauty'
+)
+
+
+--Q99.Find the category with the highest average product price using a subquery.
+
+select avg(price),category from products 
+group by category
+having avg(price) >=all(
+
+select avg(price) as avg_price from products  ---##################
+group by category
+)
+
+--Q100.Find customers whose total quantity ordered is higher than the total quantity ordered by customer C0007.
+
+select c.customer_id from customers c join orders o
+on c.customer_id =o.customer_id
+group by c.customer_id 
+having sum(o.quantity) > (
+select sum(o2.quantity) from orders o2
+where o2.customer_id = 'c0007'
+)
